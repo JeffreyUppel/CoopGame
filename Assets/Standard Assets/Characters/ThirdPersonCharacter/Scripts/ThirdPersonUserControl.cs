@@ -7,19 +7,22 @@ namespace UnityStandardAssets.Characters.ThirdPerson
     [RequireComponent(typeof (ThirdPersonCharacter))]
     public class ThirdPersonUserControl : MonoBehaviour
     {
-        private ThirdPersonCharacter m_Character; // A reference to the ThirdPersonCharacter on the object
-        private Transform m_Cam;                  // A reference to the main camera in the scenes transform
-        private Vector3 m_CamForward;             // The current forward direction of the camera
-        private Vector3 m_Move;
-        private bool m_Jump;                      // the world-relative desired move direction, calculated from the camForward and user input.
+        private ThirdPersonCharacter character; // A reference to the ThirdPersonCharacter on the object
+        private Transform cam;                  // A reference to the main camera in the scenes transform
+        private Vector3 camForward;             // The current forward direction of the camera
+        private Vector3 move;
+        private bool isJumping;                      // the world-relative desired move direction, calculated from the camForward and user input.
 
+        private Vector3 attackDirection;
+
+        [SerializeField] bool useController = true;
         
         private void Start()
         {
             // get the transform of the main camera
             if (Camera.main != null)
             {
-                m_Cam = Camera.main.transform;
+                cam = Camera.main.transform;
             }
             else
             {
@@ -29,16 +32,30 @@ namespace UnityStandardAssets.Characters.ThirdPerson
             }
 
             // get the third person character ( this should never be null due to require component )
-            m_Character = GetComponent<ThirdPersonCharacter>();
+            character = GetComponent<ThirdPersonCharacter>();
         }
 
 
         private void Update()
         {
-            if (!m_Jump)
+            if (!isJumping)
             {
-                m_Jump = CrossPlatformInputManager.GetButtonDown("Jump");
+                isJumping = Input.GetButtonDown("Jump");
             }
+
+            if (useController)
+            {
+                float xAim = Input.GetAxisRaw("Controller Right Horizontal");
+                float zAim = Input.GetAxisRaw("Controller Right Vertical");
+                Vector3 aimDirection = new Vector3(xAim, 0, zAim);
+            }
+            else
+            {
+                //Using mouse
+                Vector3 aimDirection = Input.mousePosition - this.transform.position;
+            }
+
+
         }
 
 
@@ -46,30 +63,26 @@ namespace UnityStandardAssets.Characters.ThirdPerson
         private void FixedUpdate()
         {
             // read inputs
-            float h = CrossPlatformInputManager.GetAxis("Horizontal");
-            float v = CrossPlatformInputManager.GetAxis("Vertical");
-            bool crouch = Input.GetKey(KeyCode.C);
+            float xSpeed = Input.GetAxis("Horizontal");
+            float zSpeed = Input.GetAxis("Vertical");
 
             // calculate move direction to pass to character
-            if (m_Cam != null)
+            if (cam != null)
             {
                 // calculate camera relative direction to move:
-                m_CamForward = Vector3.Scale(m_Cam.forward, new Vector3(1, 0, 1)).normalized;
-                m_Move = v*m_CamForward + h*m_Cam.right;
+                camForward = Vector3.Scale(cam.forward, new Vector3(1, 0, 1)).normalized;
+                move = zSpeed*camForward + xSpeed*cam.right;
             }
             else
             {
                 // we use world-relative directions in the case of no main camera
-                m_Move = v*Vector3.forward + h*Vector3.right;
+                move = zSpeed*Vector3.forward + xSpeed*Vector3.right;
             }
-#if !MOBILE_INPUT
-			// walk speed multiplier
-	        if (Input.GetKey(KeyCode.LeftShift)) m_Move *= 0.5f;
-#endif
 
-            // pass all parameters to the character control script
-            m_Character.Move(m_Move, crouch, m_Jump);
-            m_Jump = false;
+            character.Move(move, isJumping);
+            isJumping = false;
+
+
         }
     }
 }
