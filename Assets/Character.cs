@@ -9,15 +9,25 @@ public class Character : MonoBehaviour
     Vector3 groundNormal;
 
     Rigidbody rigidbody;
+    Animator animator;
 
     public float jumpPower = 10f;
-    public float moveSpeed = 10f;
+    public float maxMoveSpeed = 10f;
+    private float currentMoveSpeed;
+    private float currentMoveSpeedX;
+    private float currentMoveSpeedZ;
+    public float acceleration = 5f;
     private float groundCheckDistance = .1f;
+
+    private Vector3 currentVelocity;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
         rigidbody = this.GetComponent<Rigidbody>();
+        animator = this.GetComponent<Animator>();
     }
 
     public void Move(Vector3 move, bool jump)
@@ -29,7 +39,7 @@ public class Character : MonoBehaviour
         if (move.magnitude > 1f) move.Normalize();
 
         CheckGroundStatus();
-        move = Vector3.ProjectOnPlane(move, groundNormal);
+        //move = Vector3.ProjectOnPlane(move, groundNormal);
         //turnAmount = Mathf.Atan2(move.x, move.z);
         //forwardAmount = move.z;
 
@@ -50,22 +60,35 @@ public class Character : MonoBehaviour
 
     void HandleGroundedMovement(Vector3 move, bool jump)
     {
+        Debug.Log("Handling ground movement");
 
-        Vector3 playerMove = move * moveSpeed * Time.deltaTime;
-        rigidbody.velocity = new Vector3(playerMove.x * moveSpeed, 0, playerMove.z * moveSpeed);
-        //Vector3 dir = move - this.transform.position;
+        currentMoveSpeedX = currentMoveSpeedX + move.x * acceleration;
+        currentMoveSpeedX = Mathf.Clamp(currentMoveSpeedX, -maxMoveSpeed, maxMoveSpeed);
+
+        currentMoveSpeedZ = currentMoveSpeedZ + move.z * acceleration;
+        currentMoveSpeedZ = Mathf.Clamp(currentMoveSpeedZ, -maxMoveSpeed, maxMoveSpeed);
+
+        Vector3 playerVelocity = new Vector3(currentMoveSpeedX, 0, currentMoveSpeedZ) * Time.deltaTime;
+
+        rigidbody.velocity = playerVelocity;
+        currentVelocity = playerVelocity;
         move.y = 0;
-        transform.LookAt(move);
+        transform.LookAt(this.transform.position + move);
+
+        UpdateAnimator(move);
     }
 
     void HandleAirborneMovement()
     {
-
+        Debug.Log("Handling air movement");
     }
 
     void UpdateAnimator(Vector3 move)
     {
-
+        if (move.x != 0 && move.z != 0)
+        {
+            animator.SetFloat("moveSpeed", 1);
+        }
     }
 
     void CheckGroundStatus()
