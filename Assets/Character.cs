@@ -17,6 +17,7 @@ public class Character : MonoBehaviour
     private float currentMoveSpeedX;
     private float currentMoveSpeedZ;
     public float acceleration = 5f;
+    public float drag = 5f;
     private float groundCheckDistance = .1f;
 
     private Vector3 currentVelocity;
@@ -36,7 +37,7 @@ public class Character : MonoBehaviour
         // convert the world relative moveInput vector into a local-relative
         // turn amount and forward amount required to head in the desired
         // direction.
-        if (move.magnitude > 1f) move.Normalize();
+        //if (move.magnitude > 1f) move.Normalize();
 
         CheckGroundStatus();
         //move = Vector3.ProjectOnPlane(move, groundNormal);
@@ -49,24 +50,41 @@ public class Character : MonoBehaviour
         if (isGrounded)
         {
             HandleGroundedMovement(move, jump);
+            UpdateAnimator(move);
         }
         else
         {
             HandleAirborneMovement();
         }
         // send input and other state parameters to the animator
-        UpdateAnimator(move);
+        //UpdateAnimator(move);
     }
 
     void HandleGroundedMovement(Vector3 move, bool jump)
     {
         Debug.Log("Handling ground movement");
+        if (move.x == 0)
+        {
+            currentMoveSpeedX = 0; 
+        }
+        if (move.z == 0)
+        {
+            currentMoveSpeedZ = 0;
+        }
 
-        currentMoveSpeedX = currentMoveSpeedX + move.x * acceleration;
-        currentMoveSpeedX = Mathf.Clamp(currentMoveSpeedX, -maxMoveSpeed, maxMoveSpeed);
 
-        currentMoveSpeedZ = currentMoveSpeedZ + move.z * acceleration;
-        currentMoveSpeedZ = Mathf.Clamp(currentMoveSpeedZ, -maxMoveSpeed, maxMoveSpeed);
+        if (move.x != 0)
+        {
+            currentMoveSpeedX = currentMoveSpeedX + move.x * acceleration;
+            currentMoveSpeedX = Mathf.Clamp(currentMoveSpeedX, -maxMoveSpeed, maxMoveSpeed);
+        }
+
+        if (move.z != 0)
+        {
+            currentMoveSpeedZ = currentMoveSpeedZ + move.z * acceleration;
+            currentMoveSpeedZ = Mathf.Clamp(currentMoveSpeedZ, -maxMoveSpeed, maxMoveSpeed);
+        }
+
 
         Vector3 playerVelocity = new Vector3(currentMoveSpeedX, 0, currentMoveSpeedZ) * Time.deltaTime;
 
@@ -75,7 +93,7 @@ public class Character : MonoBehaviour
         move.y = 0;
         transform.LookAt(this.transform.position + move);
 
-        UpdateAnimator(move);
+
     }
 
     void HandleAirborneMovement()
@@ -85,10 +103,15 @@ public class Character : MonoBehaviour
 
     void UpdateAnimator(Vector3 move)
     {
-        if (move.x != 0 && move.z != 0)
-        {
-            animator.SetFloat("moveSpeed", 1);
-        }
+        float xMove = Mathf.Abs(move.x);
+        float zMove = Mathf.Abs(move.z);
+        float movement = 0;
+
+        if (xMove >= zMove && xMove != 0) movement = xMove;
+        if (zMove >= xMove && zMove != 0) movement = zMove;
+        if (zMove == 0 & xMove == 0) movement = zMove;
+
+        animator.SetFloat("moveSpeed", movement);
     }
 
     void CheckGroundStatus()
