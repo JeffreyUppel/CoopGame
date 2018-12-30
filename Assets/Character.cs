@@ -9,7 +9,7 @@ public class Character : MonoBehaviour
     Vector3 groundNormal;
 
     Rigidbody rigidbody;
-    Animator animator;
+    [SerializeField] private Animator animator;
 
     public float jumpPower = 10f;
     public float maxMoveSpeed = 10f;
@@ -19,9 +19,10 @@ public class Character : MonoBehaviour
     public float acceleration = 5f;
     public float drag = 5f;
     public float directionAdjustmentSpeed = .1f;
-    private float groundCheckDistance = .1f;
+    private float groundCheckDistance = .3f;
 
-    private Vector3 currentVelocity;
+    private Vector3 currentMoveVelocity;
+    private Vector3 currentJumpVelocity = Vector3.zero;
 
 
 
@@ -42,21 +43,7 @@ public class Character : MonoBehaviour
 
         CheckGroundStatus();
         move = Vector3.ProjectOnPlane(move, groundNormal);
-      
-        // control and velocity handling is different when grounded and airborne:
-        if (isGrounded)
-        {
-            HandleGroundedMovement(move, jump);
-            UpdateAnimator(move);  //TODO right now it doesnt use the adjusted move from HandleGroundMovement I think
-        }
-        else
-        {
-            HandleAirborneMovement();
-        }
-    }
 
-    void HandleGroundedMovement(Vector3 move, bool jump)
-    {
         //Add the acceleration over time and clamp it between the max movespeed
         if (move != Vector3.zero)
         {
@@ -73,8 +60,9 @@ public class Character : MonoBehaviour
 
         //Apply the direction and speed to the rigidbody
         Vector3 playerVelocity = move * currentMoveSpeed * Time.deltaTime;
-        rigidbody.velocity = playerVelocity;
-        
+        currentMoveVelocity = move * currentMoveSpeed * Time.deltaTime;
+        //rigidbody.velocity = playerVelocity;
+
         //Make sure  the rigidbody stays on the ground
         move.y = 0;
 
@@ -83,16 +71,44 @@ public class Character : MonoBehaviour
 
         //save the direction for the directional smoothing
         previousMove = move;
+
+
+
+        // control and velocity handling is different when grounded and airborne:
+        if (isGrounded)
+        {
+            HandleGroundedMovement(jump);
+        }
+        else
+        {
+            HandleAirborneMovement(move, jump);
+        }
+
+        rigidbody.velocity = currentMoveVelocity + currentJumpVelocity;
+        UpdateAnimator(move);  //TODO right now it doesnt use the adjusted move from HandleGroundMovement I think
+
     }
 
-    void HandleAirborneMovement()
+    void HandleGroundedMovement(bool jump)
     {
-        Debug.Log("Handling air movement");
+        if (jump)
+        {
+            Debug.Log("JUmp!");
+            currentJumpVelocity = Vector3.up * jumpPower;
+            isGrounded = false;
+        }
+    }
+
+    void HandleAirborneMovement(Vector3 move, bool jump)
+    {
+        currentJumpVelocity.y -= .7f;
     }
 
     void UpdateAnimator(Vector3 move)
     {
         animator.SetFloat("moveSpeed", move.magnitude); //TODO might need to use the currentMoveSpeed to do this later but works for now
+        animator.SetBool("onGround", isGrounded);
+
     }
 
     void CheckGroundStatus()
