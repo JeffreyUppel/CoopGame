@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 170076734}
-  m_IndirectSpecularColor: {r: 0.44657838, g: 0.49641234, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641258, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -242,10 +242,63 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1727090409, guid: 45b42826dc0fddc4aba7df52164c2ab7, type: 3}
       propertyPath: acceleration
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 1727090409, guid: 45b42826dc0fddc4aba7df52164c2ab7, type: 3}
+      propertyPath: directionAdjustmentSpeed
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1727090409, guid: 45b42826dc0fddc4aba7df52164c2ab7, type: 3}
+      propertyPath: animator
+      value: 
+      objectReference: {fileID: 1056920478}
+    - target: {fileID: 1727090413, guid: 45b42826dc0fddc4aba7df52164c2ab7, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1727090412, guid: 45b42826dc0fddc4aba7df52164c2ab7, type: 3}
+      propertyPath: m_Constraints
+      value: 80
+      objectReference: {fileID: 0}
+    - target: {fileID: 1727090412, guid: 45b42826dc0fddc4aba7df52164c2ab7, type: 3}
+      propertyPath: m_Mass
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 1727090412, guid: 45b42826dc0fddc4aba7df52164c2ab7, type: 3}
+      propertyPath: m_Interpolate
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1727090412, guid: 45b42826dc0fddc4aba7df52164c2ab7, type: 3}
+      propertyPath: m_Drag
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 45b42826dc0fddc4aba7df52164c2ab7, type: 3}
+--- !u!1 &1056920475 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1659398860, guid: 45b42826dc0fddc4aba7df52164c2ab7,
+    type: 3}
+  m_PrefabInstance: {fileID: 199095650}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &1056920478
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1056920475}
+  m_Enabled: 1
+  m_Avatar: {fileID: 9000000, guid: b69174d668ba02d44b14a084b217670a, type: 3}
+  m_Controller: {fileID: 9100000, guid: 96abcbc3b20066046b3c1bc5ac2a59c4, type: 2}
+  m_CullingMode: 1
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 1
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!4 &1727090408 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1727090408, guid: 45b42826dc0fddc4aba7df52164c2ab7,
@@ -366,10 +419,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1cf42a3c92b94ed3b2f95c4fdcd7c8f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  animator: {fileID: 0}
   jumpPower: 50
   maxMoveSpeed: 10
   acceleration: 5
   drag: 5
+  directionAdjustmentSpeed: 0.1
 --- !u!1 &2136012443
 GameObject:
   m_ObjectHideFlags: 0
