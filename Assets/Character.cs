@@ -13,11 +13,12 @@ public class Character : MonoBehaviour
 
     public float jumpPower = 10f;
     public float maxMoveSpeed = 10f;
-    private float currentMoveSpeed;
-    private float currentMoveSpeedX;
-    private float currentMoveSpeedZ;
+    private float currentMoveSpeed = 0;
+    private Vector3 previousMove = Vector3.zero;
+   
     public float acceleration = 5f;
     public float drag = 5f;
+    public float directionAdjustmentSpeed = .1f;
     private float groundCheckDistance = .1f;
 
     private Vector3 currentVelocity;
@@ -37,63 +38,51 @@ public class Character : MonoBehaviour
         // convert the world relative moveInput vector into a local-relative
         // turn amount and forward amount required to head in the desired
         // direction.
-        //if (move.magnitude > 1f) move.Normalize();
+        if (move.magnitude > 1f) move.Normalize();
 
         CheckGroundStatus();
-        //move = Vector3.ProjectOnPlane(move, groundNormal);
-        //turnAmount = Mathf.Atan2(move.x, move.z);
-        //forwardAmount = move.z;
-
-        //ApplyExtraTurnRotation();
-
+        move = Vector3.ProjectOnPlane(move, groundNormal);
+      
         // control and velocity handling is different when grounded and airborne:
         if (isGrounded)
         {
             HandleGroundedMovement(move, jump);
-            UpdateAnimator(move);
+            UpdateAnimator(move);  //TODO right now it doesnt use the adjusted move from HandleGroundMovement I think
         }
         else
         {
             HandleAirborneMovement();
         }
-        // send input and other state parameters to the animator
-        //UpdateAnimator(move);
     }
 
     void HandleGroundedMovement(Vector3 move, bool jump)
     {
-        Debug.Log("Handling ground movement");
-        if (move.x == 0)
+        //Add the acceleration over time and clamp it between the max movespeed
+        if (move != Vector3.zero)
         {
-            currentMoveSpeedX = 0; 
-        }
-        if (move.z == 0)
-        {
-            currentMoveSpeedZ = 0;
+            currentMoveSpeed += acceleration;
+            currentMoveSpeed = Mathf.Clamp(currentMoveSpeed, -maxMoveSpeed, maxMoveSpeed);
         }
 
 
-        if (move.x != 0)
+        //Smoothens the directional control
+        if (previousMove != Vector3.zero)
         {
-            currentMoveSpeedX = currentMoveSpeedX + move.x * acceleration;
-            currentMoveSpeedX = Mathf.Clamp(currentMoveSpeedX, -maxMoveSpeed, maxMoveSpeed);
+            move = Vector3.Slerp(previousMove, move, directionAdjustmentSpeed);
         }
 
-        if (move.z != 0)
-        {
-            currentMoveSpeedZ = currentMoveSpeedZ + move.z * acceleration;
-            currentMoveSpeedZ = Mathf.Clamp(currentMoveSpeedZ, -maxMoveSpeed, maxMoveSpeed);
-        }
-
-
-        Vector3 playerVelocity = new Vector3(currentMoveSpeedX, 0, currentMoveSpeedZ) * Time.deltaTime;
-
+        //Apply the direction and speed to the rigidbody
+        Vector3 playerVelocity = move * currentMoveSpeed * Time.deltaTime;
         rigidbody.velocity = playerVelocity;
-        currentVelocity = playerVelocity;
+        
+        //Make sure  the rigidbody stays on the ground
         move.y = 0;
+
+        //Look at the direction
         transform.LookAt(this.transform.position + move);
 
-
+        //save the direction for the directional smoothing
+        previousMove = move;
     }
 
     void HandleAirborneMovement()
@@ -103,15 +92,7 @@ public class Character : MonoBehaviour
 
     void UpdateAnimator(Vector3 move)
     {
-        float xMove = Mathf.Abs(move.x);
-        float zMove = Mathf.Abs(move.z);
-        float movement = 0;
-
-        if (xMove >= zMove && xMove != 0) movement = xMove;
-        if (zMove >= xMove && zMove != 0) movement = zMove;
-        if (zMove == 0 & xMove == 0) movement = zMove;
-
-        animator.SetFloat("moveSpeed", movement);
+        animator.SetFloat("moveSpeed", move.magnitude); //TODO might need to use the currentMoveSpeed to do this later but works for now
     }
 
     void CheckGroundStatus()
