@@ -24,6 +24,12 @@ public class Character : MonoBehaviour
     private Vector3 currentMoveVelocity;
     private Vector3 currentJumpVelocity = Vector3.zero;
 
+    [SerializeField] GameObject crosshair;
+    [SerializeField] private float aimLength = 2f;
+
+    [SerializeField] GameObject bullet;
+    [SerializeField] Transform shootPos;
+
 
 
     // Start is called before the first frame update
@@ -132,5 +138,29 @@ public class Character : MonoBehaviour
             groundNormal = Vector3.up;
 
         }
+    }
+
+    public void AimBehaviour(Vector3 aimDirection, bool isShooting)
+    {
+        //Normalize the direction
+        aimDirection = aimDirection.normalized;
+        // Vector3 dir = aimDirection - this.transform.position;
+        Vector3 crosshairPos = this.transform.position + aimDirection * aimLength;
+        crosshairPos.y = .1f;
+        crosshair.transform.position = crosshairPos;
+
+        if (isShooting)
+        {
+            Shoot(aimDirection);
+        }
+
+        isShooting = false;
+    }
+
+    private void Shoot(Vector3 aimDirection)
+    {
+        GameObject bulletGOJ = Instantiate(bullet, shootPos.position, Quaternion.identity);
+        Projectile b = bulletGOJ.GetComponent<Projectile>();
+        b.SetTarget(aimDirection);
     }
 }

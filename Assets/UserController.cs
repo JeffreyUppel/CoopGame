@@ -5,9 +5,12 @@ using UnityEngine;
 public class UserController : MonoBehaviour
 {
     private bool isJumping = false;
-    private Vector3 move; 
+    private Vector3 move;
+    private float maxRaycastDepth = 100f;
 
     [SerializeField] private bool useController = false;
+    private Vector3 aimDirection;
+    private bool isShooting = false;
 
     private Character character;
 
@@ -27,15 +30,33 @@ public class UserController : MonoBehaviour
         {
             float xAim = Input.GetAxisRaw("Controller Right Horizontal");
             float zAim = Input.GetAxisRaw("Controller Right Vertical");
-            Vector3 aimDirection = new Vector3(xAim, 0, zAim);
+            aimDirection = new Vector3(xAim, 0, zAim);
         }
         else
         {
-            //Using mouse
-            Vector3 aimDirection = Input.mousePosition - this.transform.position;
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Vector3 mousePos = Vector3.zero;
+            RaycastHit[] raycastHits = Physics.RaycastAll(ray, maxRaycastDepth);
+
+            for (int i = 0; i < raycastHits.Length; i++)
+            {
+                if (raycastHits[i].collider.tag == "Ground")
+                {
+                    mousePos = raycastHits[i].point;
+                }
+            }
+
+            aimDirection = mousePos - this.transform.position;
+
+            if (Input.GetButtonDown("Fire1"))
+            {
+                isShooting = true;
+            }
         }
 
-
+        character.AimBehaviour(aimDirection, isShooting);
+        isShooting = false;
     }
 
     private void FixedUpdate()
