@@ -11,6 +11,8 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float time = 10f;
     [SerializeField] private GameObject visual;
 
+    [SerializeField] private int damage = 10;
+
     private bool isBeingDestroyed = false;
 
     // Start is called before the first frame update
@@ -25,6 +27,19 @@ public class Projectile : MonoBehaviour
 
         //this.transform.Translate(target);
         //rigidbody.velocity = target * 1000f;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        Debug.Log("Hit Something!");
+
+        if (other.CompareTag("Enemy"))
+        {
+            Debug.Log("Oh hit an enemy!");
+            IHittable hit = other.GetComponent<IHittable>();
+            Debug.Log("Hitting enemy with " + damage + " damage!");
+            hit.GetHit(damage);
+        }
     }
 
     private void Update()

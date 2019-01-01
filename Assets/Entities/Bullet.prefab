@@ -157,6 +157,7 @@ MonoBehaviour:
   explosion: {fileID: 899928209356441475}
   time: 30
   visual: {fileID: 274039941688707253}
+  damage: 20
 --- !u!1001 &1062626679726175203
 PrefabInstance:
   m_ObjectHideFlags: 0
