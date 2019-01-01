@@ -31,6 +31,11 @@ public class Projectile : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (other.CompareTag("Player"))
+        {
+            return;
+        }
+
         Debug.Log("Hit Something!");
 
         if (other.CompareTag("Enemy"))
@@ -40,10 +45,12 @@ public class Projectile : MonoBehaviour
             Debug.Log("Hitting enemy with " + damage + " damage!");
             hit.GetHit(damage);
         }
+
+        Explode();
     }
 
     private void Update()
-    {  
+    {
         time--;
 
         if (isBeingDestroyed)
@@ -54,14 +61,19 @@ public class Projectile : MonoBehaviour
 
         if (time <= 0)
         {
-            explosion.Play();
-            visual.SetActive(false);
-            isBeingDestroyed = true;
+            Explode();
         }
         else
         {
             this.transform.Translate(target * bulletSpeed * Time.deltaTime);
         }
+    }
+
+    private  void Explode()
+    {
+        explosion.Play();
+        visual.SetActive(false);
+        isBeingDestroyed = true;
     }
 
     private IEnumerator Destroy(float time)
