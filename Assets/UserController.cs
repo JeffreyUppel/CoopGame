@@ -31,6 +31,12 @@ public class UserController : MonoBehaviour
             float xAim = Input.GetAxisRaw("Controller Right Horizontal");
             float zAim = Input.GetAxisRaw("Controller Right Vertical");
             aimDirection = new Vector3(xAim, 0, zAim);
+
+            if (Input.GetButtonDown("Controller Fire1"))
+            {
+                Debug.Log("Trying to shoot!");
+                isShooting = true;
+            }
         }
         else
         {
@@ -61,10 +67,20 @@ public class UserController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        // read inputs
-        float xSpeed = Input.GetAxis("Horizontal");
-        float zSpeed = Input.GetAxis("Vertical");
+        float xSpeed = 0;
+        float zSpeed = 0;
 
+        // read inputs
+        if (useController)
+        {
+            xSpeed = Input.GetAxis("Controller Horizontal");
+            zSpeed = Input.GetAxis("Controller Vertical");
+        }
+        else
+        {
+            xSpeed = Input.GetAxis("Horizontal");
+            zSpeed = Input.GetAxis("Vertical");
+        }
         // calculate move direction to pass to character
         move = new Vector3(xSpeed, 0, zSpeed);
 
