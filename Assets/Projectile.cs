@@ -11,6 +11,8 @@ public class Projectile : MonoBehaviour
     [SerializeField] private float time = 10f;
     [SerializeField] private GameObject visual;
 
+    private bool isBeingDestroyed = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,14 +31,28 @@ public class Projectile : MonoBehaviour
     {  
         time--;
 
+        if (isBeingDestroyed)
+        {
+            StartCoroutine("Destroy", 2f);
+            return;
+        }
+
         if (time <= 0)
         {
             explosion.Play();
             visual.SetActive(false);
+            isBeingDestroyed = true;
         }
         else
         {
             this.transform.Translate(target * bulletSpeed * Time.deltaTime);
         }
+    }
+
+    private IEnumerator Destroy(float time)
+    {
+        yield return new WaitForSeconds(time);
+
+        Destroy(this.gameObject);
     }
 }
