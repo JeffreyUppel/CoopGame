@@ -30,6 +30,9 @@ public class Character : MonoBehaviour
     [SerializeField] GameObject bullet;
     [SerializeField] Transform shootPos;
 
+    private bool isShooting = false;
+    private bool isRolling = false;
+
 
 
     // Start is called before the first frame update
@@ -114,6 +117,7 @@ public class Character : MonoBehaviour
     {
         animator.SetFloat("moveSpeed", move.magnitude); //TODO might need to use the currentMoveSpeed to do this later but works for now
         animator.SetBool("onGround", isGrounded);
+       // animator.SetBool("isShooting", isShooting);
 
     }
 
@@ -140,7 +144,7 @@ public class Character : MonoBehaviour
         }
     }
 
-    public void AimBehaviour(Vector3 aimDirection, bool isShooting)
+    public void AimBehaviour(Vector3 aimDirection, bool _isShooting)
     {
         //Normalize the direction
         aimDirection = aimDirection.normalized;
@@ -149,8 +153,10 @@ public class Character : MonoBehaviour
         crosshairPos.y = .1f;
         crosshair.transform.position = crosshairPos;
 
-        if (isShooting)
+        if (_isShooting)
         {
+            isShooting = true;
+            animator.SetTrigger("isShooting");
             Shoot(aimDirection);
         }
 
