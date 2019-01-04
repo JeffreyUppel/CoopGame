@@ -31,6 +31,8 @@ public class Character : MonoBehaviour
     [SerializeField] Transform shootPos;
 
     private bool isShooting = false;
+    private float shootingTimer = 0;
+    private Vector3 aimDirection = Vector3.zero;
     private bool isRolling = false;
 
 
@@ -76,7 +78,16 @@ public class Character : MonoBehaviour
         move.y = 0;
 
         //Look at the direction
-        transform.LookAt(this.transform.position + move);
+        if (shootingTimer > 0)
+        {
+            Vector3 aimDir = this.transform.position + aimDirection;
+            transform.LookAt(aimDir);
+        }
+        else
+        {
+            Vector3 walkDir = this.transform.position + move;
+            transform.LookAt(walkDir);
+        }
 
         //save the direction for the directional smoothing
         previousMove = move;
@@ -144,10 +155,11 @@ public class Character : MonoBehaviour
         }
     }
 
-    public void AimBehaviour(Vector3 aimDirection, bool _isShooting)
+    public void AimBehaviour(Vector3 _aimDirection, bool _isShooting)
     {
         //Normalize the direction
-        aimDirection = aimDirection.normalized;
+        _aimDirection = _aimDirection.normalized;
+        aimDirection = _aimDirection;
         // Vector3 dir = aimDirection - this.transform.position;
         Vector3 crosshairPos = this.transform.position + aimDirection * aimLength;
         crosshairPos.y = .1f;
@@ -158,6 +170,8 @@ public class Character : MonoBehaviour
             isShooting = true;
             animator.SetTrigger("isShooting");
             Shoot(aimDirection);
+            shootingTimer = .2f;
+            //transform.LookAt(aimDirection);
         }
 
         isShooting = false;
@@ -168,5 +182,15 @@ public class Character : MonoBehaviour
         GameObject bulletGOJ = Instantiate(bullet, shootPos.position, Quaternion.identity);
         Projectile b = bulletGOJ.GetComponent<Projectile>();
         b.SetTarget(aimDirection);
+    }
+
+    private void Update()
+    {
+        if (shootingTimer <= 0)
+        {
+            return;
+        }
+
+        shootingTimer -= Time.deltaTime;
     }
 }
