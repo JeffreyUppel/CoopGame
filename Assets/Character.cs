@@ -169,6 +169,8 @@ public class Character : MonoBehaviour
         {
             isShooting = true;
             animator.SetTrigger("isShooting");
+            animator.SetFloat("sideDirection", aimDirection.x);
+            animator.SetFloat("forwardDirection", aimDirection.z);
             Shoot(aimDirection);
             shootingTimer = .2f;
             //transform.LookAt(aimDirection);
